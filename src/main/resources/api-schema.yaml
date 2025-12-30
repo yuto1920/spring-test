@@ -17,6 +17,45 @@ paths:
         '200':
           description: OK
   /tasks/:
+    get: 
+      summary: "タスクの一覧取得"
+      description: "タスクの一覧の取得"
+      operationId: "listTasks"
+      tags:
+        - tasks
+      parameters:
+        - name: limit
+          in: query
+          required: true
+          description: "リストに含まれるリソースの最大値"
+          schema: 
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: offset
+          in: query
+          required: true
+          description: "オフセット"
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            default: 0
+      responses:
+        '200': 
+          description: "OK"
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListDTO"
+        '400':
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestError"
     post:
       summary: "タスク作成"
       description: "タスクを新規作成します"
@@ -48,6 +87,71 @@ paths:
               schema:
                 $ref: "#/components/schemas/BadRequestError"
   /tasks/{taskId}:
+    delete:
+      summary: "タスク削除"
+      description: "指定されたタスクを削除します"
+      operationId: "deleteTask"
+      tags:
+        - tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: "更新するタスクID"
+          schema: 
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '204': 
+          description: "No content" 
+        '404':
+          description: "NOT FOUND" 
+          content: 
+            application/json: 
+              schema: 
+                $ref: "#/components/schemas/ResourceNotFoundError"
+
+    put: 
+      summary: "タスク更新"
+      description: "指定されたタスクをリクエストボディの内容で上書きします"
+      operationId: "editTask"
+      tags: 
+        - tasks
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: "更新するタスクID"
+          schema: 
+            type: integer
+            format: int64
+            minimum: 1
+      requestBody:
+        required: true 
+        content: 
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/TaskForm"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDTO"
+        '400': 
+          description: "Bad Request"
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/BadRequestError"
+        '404':
+          description: "NOT FOUND"
+          content: 
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/ResourceNotFoundError"
     get:
       tags:
         - tasks
@@ -100,6 +204,36 @@ components:
       required:
         - id
         - title
+    PageDTO:
+      description: "ページング情報"
+      type: object
+      properties: 
+        limit: 
+          description: "リクエストされた limit"
+          type: integer
+          format: int32
+        offset: 
+          description: "リクエストされた offset"
+          type: integer
+          format: int64
+        size:
+          description: "リクエストされた size"
+          type: integer
+          format: int32
+      required: 
+        - limit
+        - offset
+        - size
+    TaskListDTO:
+      description: "タスクのリスト"
+      type: object
+      properties:
+        page: 
+          $ref: "#/components/schemas/PageDTO"
+        results:
+          type: array
+          items: 
+            $ref: "#/components/schemas/TaskDTO"
     ResourceNotFoundError: 
       description: "リソースが存在しません"
       type: object

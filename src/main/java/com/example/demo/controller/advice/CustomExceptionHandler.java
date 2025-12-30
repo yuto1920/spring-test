@@ -16,6 +16,8 @@ import com.example.demo.model.BadRequestError;
 import com.example.demo.model.ResourceNotFoundError;
 import com.example.demo.service.task.TaskEntityNotFoundException;
 
+import jakarta.validation.ConstraintViolationException;
+
 @RestControllerAdvice
 public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(TaskEntityNotFoundException.class)
@@ -41,4 +43,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     };
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<BadRequestError> handleConstrainViolationException(
+            ConstraintViolationException ex) {
+        var error = BadRequestErrorCreator.from(ex);
+        return ResponseEntity.badRequest().body(error);
+    }
 }
