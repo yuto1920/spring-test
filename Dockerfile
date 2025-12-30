@@ -8,6 +8,11 @@ WORKDIR /app
 # プロジェクトのファイルを全てコピー
 COPY . .
 
+RUN chmod +x ./gradlew
+
+# アプリをビルド
+RUN ./gradlew clean bootJar -x test --no-daemon
+
 # アプリをビルド（テストは時間短縮のためスキップします）
 RUN ./gradlew clean bootJar -x test --no-daemon
 
